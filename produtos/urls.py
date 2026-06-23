@@ -8,7 +8,7 @@ router = DefaultRouter(trailing_slash=False)
 router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 urlpatterns = [
-    path('api/produtos', ProdutoViewSet.as_view(), name='api-listar-produtos'),
+    path('api/produtos', ProdutoViewSet.as_view({'get': 'list'}), name='api-listar-produtos'),
     path('listarprodutos', views.listarProdutos),
     path('cadastroProduto', views.cadastroProduto),
     path('excluirProduto/<int:id>', views.excluirProduto),
