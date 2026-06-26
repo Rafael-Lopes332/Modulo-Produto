@@ -3,6 +3,7 @@ from .models import Produto
 from django.http import HttpResponseRedirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from .forms import ProdutoForm
 
 from .serializers import ProdutoSerializer
 from rest_framework import viewsets, permissions
@@ -32,33 +33,28 @@ def logout_view(request):
 
 @login_required(login_url="/produtos/login")
 def listarProdutos(request):
+    busca = request.GET.get('busca', '').strip()
 
-    if request.method == "GET" and request.GET.get('busca'):
-        produtos = Produto.objects.filter(nome__icontains=request.GET.get('busca'))
+    if busca:
+        produtos = Produto.objects.filter(nome__icontains=busca)
     else:
         produtos = Produto.objects.all()
 
-    return render(request, "listarProdutos.html", {"produtos" : produtos})
+    return render(request, "listarProdutos.html", {
+        "produtos": produtos
+    })
 
 @login_required(login_url="/produtos/login")
 def cadastroProduto(request):
+    if request.method == "POST":
+        form = ProdutoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/produtos/listarprodutos')
+    else:
+        form = ProdutoForm() 
 
-    if(request.method == "POST"):
-        nome = request.POST.get('nome')      
-        categoria = request.POST.get('categoria')
-        preco = request.POST.get('preco')
-
-        novo_produto = Produto(nome=nome, 
-                                categoria=categoria, 
-                                preco=preco, 
-                                )
-        novo_produto.save()
-
-        return HttpResponseRedirect('/produtos/listarprodutos')
-
-    produtos = Produto.objects.all()
-
-    return render(request, "cadastroProduto.html", {'produtos':produtos})
+    return render(request, "cadastroProduto.html", {'form': form})
 
 @login_required(login_url="/produtos/login")
 def excluirProduto(request, id):
@@ -70,23 +66,15 @@ def excluirProduto(request, id):
 
 @login_required(login_url="/produtos/login")
 def editarProduto(request, id):
+    produto = Produto.objects.get(id=id)
 
     if request.method == "POST":
-        nome = request.POST.get('nome')      
-        categoria = request.POST.get('categoria')
-        preco = request.POST.get('preco')
-
-        editar_produto = Produto.objects.get(id=id)
-        editar_produto.nome = nome
-        editar_produto.categoria = categoria
-        editar_produto.preco = preco
-       
-        editar_produto.save()
-
-        return HttpResponseRedirect('/produtos/listarprodutos')
+        form = ProdutoForm(request.POST, instance=produto)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/produtos/listarprodutos')
     else:
-        produto = Produto.objects.get(id=id)
-        
+        form = ProdutoForm(instance=produto)
 
-    return render(request, "editarProduto.html",{'produto': produto})
+    return render(request, "editarProduto.html", {'form': form})
 

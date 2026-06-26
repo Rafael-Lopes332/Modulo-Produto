@@ -37,6 +37,7 @@
                 <th scope="col" class="ps-3">Nome</th>
                 <th scope="col">Categoria</th>
                 <th scope="col">Preço</th>
+                <th scope="col">Fornecedor</th>
                 <th scope="col" class="text-center">Ações</th>
               </tr>
             </thead>
@@ -45,7 +46,8 @@
                     <tr>
                         <td class="ps-3">{{ produto.nome }}</td>
                         <td>{{ produto.categoria }}</td>
-                        <td>R$ {{ produto.preco }}</td>
+                        <td>R$ {{ produto.preco|floatformat:2 }}</td>
+                        <td>{{ produto.get_fornecedor_nome }}</td>
                         <td class="text-center">
                           <a href="/produtos/editarProduto/{{produto.id}}" class="btn btn-secondary btn-sm">Editar</a>
                           <a href="/produtos/excluirProduto/{{produto.id}}" class="btn btn-danger btn-sm">Excluir</a>
